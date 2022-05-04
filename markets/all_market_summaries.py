@@ -4,10 +4,8 @@ import requests
 from jsonschema import validate
 from resources.cwtest import Route
 
-headers={"X-CW-API-Key":"ID9AJPGQ0ZNPZLSG2ML0"}
-
 route = Route(endpoint="markets", exchange="kraken", pair="ltcusd")
-response = requests.get(route.get_all_market_summaries_url(), headers=headers)
+response = requests.get(route.get_all_market_summaries_url(), headers={"X-CW-API-Key": route.api_key})
 response_body = response.json()
 
 def test_all_market_summaries_endpoint_status_code():
@@ -96,7 +94,7 @@ route.test_allowance_data(response_body=response_body)
 def test_all_market_summaries_endpoint_wrong_endpoint():
     """Negative test for checking incorrect endpoint address"""
     route2 = Route(endpoint="markets")
-    resp = requests.get(route2.get_all_market_summaries_url() + "s", headers=headers)
+    resp = requests.get(route2.get_all_market_summaries_url() + "s", headers={"X-CW-API-Key": route2.api_key})
     resp_body = resp.json()
     assert resp.status_code == 404
     assert resp_body["error"] == "Exchange not found"
@@ -106,21 +104,21 @@ def test_all_market_summaries_keyby_param():
     # Check keyBy: id
     params={"keyBy": "id"}
     route1 = Route(endpoint="markets", exchange="kraken", pair="ltcusd")
-    resp1 = requests.get(route1.get_all_market_summaries_url(), headers=headers, params=params)
+    resp1 = requests.get(route1.get_all_market_summaries_url(), headers={"X-CW-API-Key": route1.api_key}, params=params)
     resp_body1 = resp1.json()
     for item in resp_body1["result"]:
         assert re.match("[0-9]+", item)
     # Check keyBy: symbol
     params={"keyBy": "symbols"}
     route2 = Route(endpoint="markets", exchange="kraken", pair="ltcusd")
-    resp2 = requests.get(route2.get_all_market_summaries_url(), headers=headers, params=params)
+    resp2 = requests.get(route2.get_all_market_summaries_url(), headers={"X-CW-API-Key": route2.api_key}, params=params)
     resp_body2 = resp2.json()
     for item in resp_body2["result"]:
         assert re.match(".*:.*", item)
     # Check unknown keyBy param
     params={"keyBy": "asdf"}
     route2 = Route(endpoint="markets", exchange="kraken", pair="ltcusd")
-    resp2 = requests.get(route2.get_all_market_summaries_url(), headers=headers, params=params)
+    resp2 = requests.get(route2.get_all_market_summaries_url(), headers={"X-CW-API-Key": route2.api_key}, params=params)
     resp_body2 = resp2.json()
     assert resp2.status_code == 400
     assert resp_body2["error"] == "Unkown sort parameter"
@@ -129,14 +127,14 @@ def test_list_all_markets_endpoint_params():
     """Tests the parameters"""
     # First request
     params1 = {"limit": 10}
-    resp1 = requests.get(route.get_endpoint_url(), headers=headers, params=params1)
+    resp1 = requests.get(route.get_endpoint_url(), headers={"X-CW-API-Key": route.api_key}, params=params1)
     resp_body1 = resp1.json()
     assert len(resp_body1["result"]) == 10
     for i in range(10):
         assert resp_body1["result"][i]["id"] == (i + 1)
     # Second request
     params2 = {"limit": 10, "cursor": resp_body1["cursor"]["last"]}
-    resp2 = requests.get(route.get_endpoint_url(), headers=headers, params=params2)
+    resp2 = requests.get(route.get_endpoint_url(), headers={"X-CW-API-Key": route.api_key}, params=params2)
     resp_body2 = resp2.json()
     assert len(resp_body2["result"]) == 10
     for i in range(10):

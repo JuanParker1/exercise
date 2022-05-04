@@ -4,10 +4,8 @@ import requests
 from jsonschema import validate
 from resources.cwtest import Route
 
-headers={"X-CW-API-Key":"ID9AJPGQ0ZNPZLSG2ML0"}
-
 route = Route(endpoint="markets", exchange="kraken", pair="ethusd")
-response = requests.get(route.get_pair_url(), headers=headers)
+response = requests.get(route.get_pair_url(), headers={"X-CW-API-Key": route.api_key})
 response_body = response.json()
 
 def test_information_about_the_market_exchange_pair_endpoint_status_code():
@@ -82,7 +80,7 @@ route.test_allowance_data(response_body=response_body)
 def test_information_about_the_market_exchange_pair_wrong_endpoint():
     """Negative test for checking incorrect endpoint address"""
     route2 = Route(endpoint="markets", exchange="kraken", pair="asdfusd")
-    resp = requests.get(route2.get_pair_url(), headers=headers)
+    resp = requests.get(route2.get_pair_url(), headers={"X-CW-API-Key": route2.api_key})
     resp_body = resp.json()
     assert resp.status_code == 404
     assert resp_body["error"] == "Instrument not found"

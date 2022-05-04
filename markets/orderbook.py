@@ -4,10 +4,8 @@ import requests
 from jsonschema import validate
 from resources.cwtest import Route
 
-headers={"X-CW-API-Key":"ID9AJPGQ0ZNPZLSG2ML0"}
-
 route = Route(endpoint="markets", exchange="kraken", pair="btcusd")
-response = requests.get(route.get_order_book_url(), headers=headers)
+response = requests.get(route.get_order_book_url(), headers={"X-CW-API-Key": route.api_key})
 response_body = response.json()
 
 def test_order_book_endpoint_status_code():
@@ -71,7 +69,7 @@ route.test_allowance_data(response_body=response_body)
 def test_order_book_endpoint_wrong_endpoint():
     """Negative test for checking incorrect endpoint address"""
     route2 = Route(endpoint="markets", exchange="kraken", pair="btcusd")
-    resp = requests.get(route2.get_order_book_url() + "s", headers=headers)
+    resp = requests.get(route2.get_order_book_url() + "s", headers={"X-CW-API-Key": route2.api_key})
     resp_body = resp.json()
     assert resp.status_code == 404
     assert resp_body["error"] == "Route not found"
@@ -80,7 +78,7 @@ def test_order_book_limit_param():
     """Tests that limit parameter works as expected"""
     params={"limit": 10}
     route2 = Route(endpoint="markets", exchange="kraken", pair="btcusd")
-    resp = requests.get(route2.get_order_book_url(), params=params, headers=headers)
+    resp = requests.get(route2.get_order_book_url(), params=params, headers={"X-CW-API-Key": route2.api_key})
     resp_body = resp.json()
     assert len(resp_body["result"]["asks"]) == 10
     assert len(resp_body["result"]["bids"]) == 10
@@ -91,7 +89,7 @@ def test_order_book_depth_param():
     for orderbook_depth in orderbook_depths:
         params={"depth": orderbook_depth}
         route2 = Route(endpoint="markets", exchange="kraken", pair="btcusd")
-        resp = requests.get(route2.get_order_book_url(), params=params, headers=headers)
+        resp = requests.get(route2.get_order_book_url(), params=params, headers={"X-CW-API-Key": route2.api_key})
         resp_body = resp.json()
         # Checking asks values
         returned_obd_asks = 0
@@ -111,10 +109,10 @@ def test_order_book_span_param():
         params={"span": orderbook_span}
         route2 = Route(endpoint="markets", exchange="kraken", pair="btcusd")
         # Get the price first
-        price_resp = requests.get(route2.get_pair_price_url(), headers=headers)
+        price_resp = requests.get(route2.get_pair_price_url(), headers={"X-CW-API-Key": route2.api_key})
         price = price_resp.json()["result"]["price"]
         # Now get the order book with span param
-        span_resp = requests.get(route2.get_order_book_url(), params=params, headers=headers)
+        span_resp = requests.get(route2.get_order_book_url(), params=params, headers={"X-CW-API-Key": route2.api_key})
         span_resp_body = span_resp.json()
         # Checking asks values
         compare_price = price * (1 + orderbook_span / 100) * (1 + 0.001)

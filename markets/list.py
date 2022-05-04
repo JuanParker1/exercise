@@ -5,8 +5,7 @@ from jsonschema import validate
 from resources.cwtest import Route
 
 route = Route("markets")
-headers={"X-CW-API-Key":"ID9AJPGQ0ZNPZLSG2ML0"}
-response = requests.get(route.get_endpoint_url(), headers=headers)
+response = requests.get(route.get_endpoint_url(), headers={"X-CW-API-Key": route.api_key})
 response_body = response.json()
 
 def test_list_all_markets_endpoint_status_code():
@@ -89,14 +88,14 @@ def test_list_all_markets_endpoint_params():
     """Tests the parameters"""
     # First request
     params1 = {"limit": 10}
-    resp1 = requests.get(route.get_endpoint_url(), headers=headers, params=params1)
+    resp1 = requests.get(route.get_endpoint_url(), headers={"X-CW-API-Key": route.api_key}, params=params1)
     resp_body1 = resp1.json()
     assert len(resp_body1["result"]) == 10
     for i in range(10):
         assert resp_body1["result"][i]["id"] == (i + 1)
     # Second request
     params2 = {"limit": 10, "cursor": resp_body1["cursor"]["last"]}
-    resp2 = requests.get(route.get_endpoint_url(), headers=headers, params=params2)
+    resp2 = requests.get(route.get_endpoint_url(), headers={"X-CW-API-Key": route.api_key}, params=params2)
     resp_body2 = resp2.json()
     assert len(resp_body2["result"]) == 10
     for i in range(10):
@@ -105,7 +104,7 @@ def test_list_all_markets_endpoint_params():
 def test_list_all_markets_endpoint_wrong_params():
     """Negative test for the parameters"""
     params = {"cursor": "asdf"}
-    resp = requests.get(route.get_endpoint_url(), headers=headers, params=params)
+    resp = requests.get(route.get_endpoint_url(), headers={"X-CW-API-Key": route.api_key}, params=params)
     resp_body = resp.json()
     assert resp.status_code == 400
     assert resp_body["error"] == "Invalid input"
@@ -113,7 +112,7 @@ def test_list_all_markets_endpoint_wrong_params():
 def test_list_all_markets_wrong_endpoint():
     """Negative test for checking incorrect endpoint address"""
     route2 = Route("marketss")
-    resp = requests.get(route2.get_endpoint_url(), headers=headers)
+    resp = requests.get(route2.get_endpoint_url(), headers={"X-CW-API-Key": route2.api_key})
     resp_body = resp.json()
     assert resp.status_code == 404
     assert resp_body["error"] == "Route not found"
