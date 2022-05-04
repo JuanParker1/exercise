@@ -1,4 +1,5 @@
 # REST API Testing Exercise
+This exercise is testing the markets endpoints using `pytest` and `requests` modules.
 
 ## Used versions:
 * Python: 3.10.4
