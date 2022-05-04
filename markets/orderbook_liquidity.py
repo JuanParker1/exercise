@@ -81,7 +81,8 @@ route.test_allowance_data(response_body=response_body)
 def test_order_book_endpoint_wrong_endpoint():
     """Negative test for checking incorrect endpoint address"""
     route2 = Route(endpoint="markets", exchange="kraken", pair="btcusd")
-    resp = requests.get(route2.get_order_book_liq_url() + "s", headers={"X-CW-API-Key": route2.api_key})
+    headers2 = {"X-CW-API-Key": route2.api_key}
+    resp = requests.get(route2.get_order_book_liq_url() + "s", headers=headers2)
     resp_body = resp.json()
     assert resp.status_code == 404
     assert resp_body["error"] == "Route not found"

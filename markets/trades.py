@@ -6,7 +6,8 @@ from jsonschema import validate
 from resources.cwtest import Route
 
 route = Route(endpoint="markets", exchange="kraken", pair="btcusd")
-response = requests.get(route.get_market_trades_url(), headers={"X-CW-API-Key": route.api_key})
+headers = {"X-CW-API-Key": route.api_key}
+response = requests.get(route.get_market_trades_url(), headers=headers)
 response_body = response.json()
 
 def test_market_trades_endpoint_status_code():
@@ -64,7 +65,8 @@ route.test_allowance_data(response_body=response_body)
 def test_market_trades_endpoint_wrong_endpoint():
     """Negative test for checking incorrect endpoint address"""
     route2 = Route(endpoint="markets", exchange="kraken", pair="btcusd")
-    resp = requests.get(route2.get_market_trades_url() + "s", headers={"X-CW-API-Key": route2.api_key})
+    headers2 = {"X-CW-API-Key": route2.api_key}
+    resp = requests.get(route2.get_market_trades_url() + "s", headers=headers2)
     resp_body = resp.json()
     assert resp.status_code == 404
     assert resp_body["error"] == "Route not found"
@@ -74,7 +76,8 @@ def test_market_trades_since_param():
     timestamp = int(time.time()) - 30
     params={"since": timestamp}
     route2 = Route(endpoint="markets", exchange="kraken", pair="btcusd")
-    resp = requests.get(route2.get_market_trades_url(), params=params, headers={"X-CW-API-Key": route2.api_key})
+    headers2 = {"X-CW-API-Key": route.api_key}
+    resp = requests.get(route2.get_market_trades_url(), params=params, headers=headers2)
     resp_body = resp.json()
     for values in resp_body["result"]:
         assert values[1] >= timestamp
@@ -83,6 +86,7 @@ def test_market_trades_limit_param():
     """Tests that limit parameter works as expected"""
     params={"limit": 10}
     route2 = Route(endpoint="markets", exchange="kraken", pair="btcusd")
-    resp = requests.get(route2.get_market_trades_url(), params=params, headers={"X-CW-API-Key": route2.api_key})
+    headers2 = {"X-CW-API-Key": route.api_key}
+    resp = requests.get(route2.get_market_trades_url(), params=params, headers=headers2)
     resp_body = resp.json()
     assert len(resp_body["result"]) == 10
